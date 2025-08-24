@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Library System — Voice AI • Responsive</title>
+  <style>
+    :root{
+      --bg:#0f172a; --panel:#0b1228cc; --card:#111936; --muted:#aab7d8; --text:#e6eeff;
+      --brand:#7c3aed; --brand-2:#22d3ee; --accent:#c084fc; --success:#22c55e; --danger:#ef4444; --warn:#f59e0b;
+      --shadow:0 10px 30px rgba(0,0,0,.35); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color:var(--text);
+      background:radial-gradient(1200px 600px at 100% 0%, rgba(124,58,237,.25), transparent 60%),
+                 radial-gradient(900px 500px at 0% 100%, rgba(34,211,238,.18), transparent 60%),
+                 linear-gradient(180deg,#0b1022,#0f172a 30% 70%,#0b1022);
+    }
+    a{color:var(--accent);text-decoration:none}
+
+    /* Header / Nav */
+    header{position:sticky;top:0;z-index:40;backdrop-filter: blur(10px);
+      background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(15,23,42,.7));
+      border-bottom:1px solid rgba(148,163,184,.12);
+    }
+    .nav{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;box-shadow:var(--shadow)}
+    .brand-txt small{color:var(--muted);font-weight:800;letter-spacing:.12em}
+    .brand-txt div{font-weight:900}
+
+    .navlinks{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.18);background:#0b1228;color:var(--muted);cursor:pointer;font-weight:700;transition:.2s}
+    .chip.active,.chip:hover{color:var(--text);transform:translateY(-1px)}
+    .right{display:flex;align-items:center;gap:10px}
+    .btn{padding:10px 14px;border:0;border-radius:12px;font-weight:800;cursor:pointer;transition:.2s;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#04111b;box-shadow:var(--shadow)}
+    .btn.secondary{background:#0b1228;border:1px solid rgba(148,163,184,.18);color:var(--text)}
+
+    main{max-width:1200px;margin:20px auto 90px;padding:0 16px}
+
+    /* Panels / Cards */
+    .panel{background:var(--panel);border:1px solid rgba(148,163,184,.18);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .card{grid-column:span 12;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid rgba(148,163,184,.12);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;gap:16px;padding:16px;align-items:center}
+    @media(min-width:640px){.card{grid-column:span 6}}
+    @media(min-width:1024px){.card{grid-column:span 4}}
+    .cover{width:64px;height:64px;border-radius:14px;display:grid;place-items:center;font-size:28px;box-shadow:var(--shadow);background:linear-gradient(135deg,rgba(124,58,237,.35),rgba(34,211,238,.35));border:1px solid rgba(148,163,184,.25)}
+    .meta{flex:1}
+    .title{font-weight:900;margin:0 0 4px}
+    .author{margin:0;color:var(--muted);font-weight:600}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .badge{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.18);color:var(--muted)}
+    .actions{display:flex;gap:8px}
+    .tiny{padding:8px 10px;border-radius:10px;border:1px solid rgba(148,163,184,.18);background:#0b1228;color:var(--text);cursor:pointer}
+    .tiny.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#04111b;border:0;font-weight:900}
+
+    /* Forms */
+    .input,.select,textarea{width:100%;background:#0b1228;border:1px solid rgba(148,163,184,.18);color:var(--text);padding:12px 14px;border-radius:12px}
+    .form-row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:720px){.form-row{grid-template-columns:1fr 1fr}}
+
+    /* Views */
+    [data-view]{display:none}
+    [data-view].active{display:block}
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 20px;align-items:center}
+    .search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid rgba(148,163,184,.18);border-radius:999px;padding:10px 14px}
+    .search input{flex:1;background:transparent;border:0;outline:0;color:var(--text)}
+
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:12px 10px;border-bottom:1px solid rgba(148,163,184,.15);text-align:left;color:var(--muted)}
+    .table th{color:var(--text)}
+
+    /* Auth Pages */
+    .auth-wrap{max-width:980px;margin:32px auto;display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:900px){.auth-wrap{grid-template-columns:1.1fr .9fr}}
+    .auth-hero{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(34,211,238,.25));border:1px solid rgba(148,163,184,.18);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+
+    /* Toast */
+    .toast{position:fixed;right:16px;bottom:16px;z-index:99;display:grid;gap:10px}
+    .toast .t{padding:12px 14px;border-radius:12px;background:#0b1228;border:1px solid rgba(148,163,184,.18);box-shadow:var(--shadow)}
+
+    /* Modal */
+    dialog{border:0;border-radius:16px;background:#0b1228;color:var(--text);padding:0;box-shadow:var(--shadow)}
+    .modal{padding:20px;min-width:320px;max-width:520px}
+
+    /* Chatbot */
+    #botToggle{position:fixed;bottom:22px;right:22px;width:60px;height:60px;border:0;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#04111b;font-size:26px;font-weight:900;cursor:pointer;box-shadow:var(--shadow);z-index:60}
+    #bot{position:fixed;bottom:92px;right:22px;width:360px;max-height:70vh;display:none;flex-direction:column;border-radius:18px;background:var(--panel);border:1px solid rgba(148,163,184,.18);box-shadow:var(--shadow);overflow:hidden;z-index:60}
+    @media(max-width:480px){#bot{right:10px;width:92vw}}
+    #bot header{padding:10px 12px;display:flex;align-items:center;gap:10px}
+    #bot header .avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;font-weight:900;color:#04111b}
+    #messages{padding:12px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+    .msg{display:flex;gap:10px}
+    .msg .bubble{padding:10px 12px;border-radius:14px;max-width:85%}
+    .from-bot .bubble{background:#121e3f;border:1px solid rgba(148,163,184,.18)}
+    .from-me{justify-content:flex-end}
+    .from-me .bubble{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#04111b;font-weight:800}
+    #bot footer{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(148,163,184,.18)}
+    #bot input{flex:1;background:transparent;border:0;outline:0;padding:12px;color:var(--text)}
+    .icon-btn{border:0;border-radius:12px;background:#0b1228;border:1px solid rgba(148,163,184,.18);padding:8px 10px;color:var(--text);cursor:pointer}
+    .icon-btn.toggle-on{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#04111b;border:0;font-weight:900}
+
+    footer{max-width:1200px;margin:0 auto;padding:30px 16px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="logo">📚</div>
+        <div class="brand-txt"><small>SMART</small><div>Library System</div></div>
+      </div>
+      <nav class="navlinks" id="navLinks" style="display:none">
+        <button class="chip active" data-nav="browse">Browse</button>
+        <button class="chip" data-nav="loans">My Loans</button>
+        <button class="chip" data-nav="admin" id="adminTab" style="display:none">Admin</button>
+        <button class="chip" data-nav="profile">Profile</button>
+      </nav>
+      <div class="right">
+        <span id="hello" style="color:var(--muted);font-weight:700"></span>
+        <button class="btn secondary" id="logoutBtn" title="Sign out" style="display:none">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- LOGIN PAGE -->
+    <section id="loginPage" data-view class="active">
+      <div class="auth-wrap">
+        <div class="auth-hero">
+          <h2 style="margin:0 0 8px">Welcome back 👋</h2>
+          <p style="margin:0;color:var(--muted)">Sign in to access your library dashboard. New here? Create an account.</p>
+          <ul style="margin:14px 0 0;color:var(--muted)">
+            <li>Borrow & return books</li>
+            <li>Smart search & recommendations</li>
+            <li>Admins can manage books and users</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0">Sign In</h3>
+          <form id="loginForm" class="form-row" autocomplete="on">
+            <input class="input" id="loginUser" placeholder="Username" required>
+            <input type="password" class="input" id="loginPass" placeholder="Password" required>
+            <button class="btn" type="submit">Sign in</button>
+            <button type="button" class="btn secondary" id="gotoSignup">Create an account</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIGNUP PAGE -->
+    <section id="signupPage" data-view>
+      <div class="auth-wrap">
+        <div class="auth-hero">
+          <h2 style="margin:0 0 8px">Create your account ✨</h2>
+          <p style="margin:0;color:var(--muted)">You can register as <b>User</b> or <b>Admin</b>. The first admin can set up the library.</p>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0">Sign Up</h3>
+          <form id="signupForm" class="form-row" autocomplete="off">
+            <input class="input" id="signName" placeholder="Full Name" required>
+            <input type="email" class="input" id="signEmail" placeholder="Email" required>
+            <input class="input" id="signUser" placeholder="Username" required>
+            <input type="password" class="input" id="signPass" placeholder="Password" required>
+            <select class="select" id="signRole" required>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn" type="submit">Create account</button>
+              <button type="button" class="btn secondary" id="gotoLogin">Back to Sign in</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD VIEWS -->
+    <section id="dashboard" data-view>
+      <div class="toolbar">
+        <div class="search" role="search">
+          🔎 <input id="q" placeholder="Search title, author, or keywords…" />
+        </div>
+        <select id="genre" class="select" title="Genre filter">
+          <option value="">All Genres</option>
+        </select>
+        <select id="status" class="select" title="Status filter">
+          <option value="">Any Status</option>
+          <option>Available</option>
+          <option>Borrowed</option>
+        </select>
+        <button class="btn secondary" id="clearFilters">Clear</button>
+      </div>
+
+      <section data-view="browse" class="active">
+        <div id="books" class="grid"></div>
+      </section>
+
+      <section data-view="loans">
+        <div class="panel">
+          <h3 style="margin-top:0">My Loans</h3>
+          <table class="table" id="loanTable">
+            <thead><tr><th>Book</th><th>Borrowed</th><th>Due</th><th>Status</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section data-view="admin">
+        <div class="panel">
+          <h3 style="margin-top:0">Manage Books</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn" id="addBookBtn">Add Book</button>
+          </div>
+          <div id="adminList" class="grid"></div>
+        </div>
+        <div class="panel" style="margin-top:16px">
+          <h3 style="margin-top:0">Manage Users</h3>
+          <table class="table" id="userTable">
+            <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Joined</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section data-view="profile">
+        <div class="panel">
+          <h3 style="margin-top:0">Profile</h3>
+          <div id="profileCard"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <small>All data is stored locally in your browser. Tip: click the 💬 bubble to talk to the AI (voice supported!).</small>
+  </footer>
+
+  <!-- Toasts -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Add/Edit Book Modal -->
+  <dialog id="bookModal">
+    <form method="dialog" class="modal" id="bookForm">
+      <header style="padding:12px 16px 0 16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px"><div class="logo" style="width:28px;height:28px">📖</div><b id="modalTitle">Add Book</b></div>
+        <button class="chip" value="cancel">Close</button>
+      </header>
+      <div style="padding:12px 16px 0 16px;display:grid;gap:10px">
+        <input class="input" id="mTitle" placeholder="Title" required>
+        <input class="input" id="mAuthor" placeholder="Author" required>
+        <input class="input" id="mGenre" placeholder="Genre (e.g., Fantasy)">
+        <textarea class="input" id="mDesc" placeholder="Short description" rows="3"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px">
+        <button class="btn secondary" value="cancel">Cancel</button>
+        <button class="btn" id="saveBook" value="default">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Floating Chatbot -->
+  <button id="botToggle" title="Library AI">💬</button>
+  <div id="bot" aria-live="polite">
+    <header>
+      <div class="avatar">AI</div>
+      <div>
+        <div style="font-weight:800">Library Assistant</div>
+        <small style="color:var(--muted)">Friendly & voice-enabled</small>
+      </div>
+    </header>
+    <div id="messages"></div>
+    <footer>
+      <button id="voiceBtn" class="icon-btn" title="Hold to speak">🎤</button>
+      <input id="botInput" placeholder="Type a message… (try: recommend fantasy)" autocomplete="off" />
+      <button id="sendBtn" class="icon-btn" title="Send">➤</button>
+      <button id="ttsBtn" class="icon-btn toggle-on" title="Voice replies on/off">🔊</button>
+    </footer>
+  </div>
+
+  <script>
+    /* =============================
+       STORAGE (NO DEMO DATA)
+    ============================== */
+    const store = {
+      get users(){ return JSON.parse(localStorage.getItem('lib_users')||'[]') },
+      set users(v){ localStorage.setItem('lib_users', JSON.stringify(v)) },
+      get books(){ return JSON.parse(localStorage.getItem('lib_books')||'[]') },
+      set books(v){ localStorage.setItem('lib_books', JSON.stringify(v)) },
+      get session(){ return JSON.parse(localStorage.getItem('lib_session')||'null') },
+      set session(v){ localStorage.setItem('lib_session', JSON.stringify(v)) },
+      get loans(){ return JSON.parse(localStorage.getItem('lib_loans')||'[]') },
+      set loans(v){ localStorage.setItem('lib_loans', JSON.stringify(v)) },
+    }
+
+    /* =============================
+       UTILITIES
+    ============================== */
+    function id(){ return Math.random().toString(36).slice(2,9) }
+    function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString() }
+    function addDays(ts, days){ return ts + days*86400000 }
+    function badge(text, color){ return `<span class="badge" style="border-color:${color}; color:${color}">${text}</span>` }
+    function toast(msg){ const t=document.createElement('div'); t.className='t'; t.textContent=msg; document.getElementById('toast').appendChild(t); setTimeout(()=>t.remove(), 3000) }
+
+    /* =============================
+       AUTH PAGES TOGGLE
+    ============================== */
+    const views = [...document.querySelectorAll('[data-view]')];
+    function show(id){ views.forEach(v=>v.classList.toggle('active', v.id===id || v.getAttribute('data-view')===id)); }
+
+    const gotoSignup = document.getElementById('gotoSignup');
+    const gotoLogin = document.getElementById('gotoLogin');
+    if(gotoSignup) gotoSignup.onclick = ()=> show('signupPage');
+    if(gotoLogin) gotoLogin.onclick = ()=> show('loginPage');
+
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    document.getElementById('logoutBtn').onclick = ()=>{ store.session=null; updateUI() }
+
+    loginForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value;
+      const user = store.users.find(x=>x.username===u && x.password===p);
+      if(!user) return toast('Invalid username or password');
+      store.session = {id:user.id, username:user.username, role:user.role};
+      updateUI(); toast(`Welcome ${user.name||user.username}!`);
+    });
+
+    signupForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('signName').value.trim();
+      const email = document.getElementById('signEmail').value.trim();
+      const username = document.getElementById('signUser').value.trim();
+      const password = document.getElementById('signPass').value;
+      const role = document.getElementById('signRole').value;
+      if(!name||!email||!username||!password) return toast('Please fill all fields');
+      const users = store.users;
+      if(users.find(x=>x.username===username)) return toast('Username already exists');
+      const user = {id:id(), name, email, username, password, role, joined:Date.now()};
+      users.push(user); store.users = users;
+      store.session = {id:user.id, username:user.username, role:user.role};
+      updateUI(); toast('Account created! Welcome 🎉');
+    });
+
+    /* =============================
+       NAV / DASHBOARD
+    ============================== */
+    const navLinks = document.getElementById('navLinks');
+    navLinks.addEventListener('click', (e)=>{ if(!(e.target.dataset && e.target.dataset.nav)) return; openView(e.target.dataset.nav) });
+    function openView(name){
+      const dash = document.getElementById('dashboard');
+      [...dash.querySelectorAll('[data-view]')].forEach(v=>v.classList.toggle('active', v.getAttribute('data-view')===name));
+      [...navLinks.children].forEach(c=>c.classList.toggle('active', c.dataset.nav===name));
+      if(name==='browse') renderBooks();
+      if(name==='loans') renderLoans();
+      if(name==='admin'){ renderAdmin(); renderUsers() }
+      if(name==='profile') renderProfile();
+    }
+
+    function updateUI(){
+      const s = store.session;
+      const hello = document.getElementById('hello');
+      const adminTab = document.getElementById('adminTab');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if(!s){
+        show('loginPage');
+        document.getElementById('navLinks').style.display='none';
+        logoutBtn.style.display='none';
+        hello.textContent='';
+        return;
+      }
+      // Logged in
+      document.getElementById('navLinks').style.display='flex';
+      logoutBtn.style.display='inline-flex';
+      adminTab.style.display = s.role==='admin' ? 'inline-flex' : 'none';
+      hello.textContent = `Hi, ${s.username} (${s.role})`;
+      show('dashboard');
+      openView('browse');
+    }
+
+    /* =============================
+       BROWSE / SEARCH / BORROW
+    ============================== */
+    const booksEl = document.getElementById('books');
+    const qEl = document.getElementById('q');
+    const genreEl = document.getElementById('genre');
+    const statusEl = document.getElementById('status');
+    document.getElementById('clearFilters').onclick = ()=>{ qEl.value=''; genreEl.value=''; statusEl.value=''; renderBooks() }
+
+    function populateGenres(){
+      const genres = [...new Set(store.books.map(b=>b.genre).filter(Boolean))].sort();
+      genreEl.innerHTML = '<option value="">All Genres</option>' + genres.map(g=>`<option>${g}</option>`).join('');
+    }
+
+    function renderBooks(){
+      populateGenres();
+      const q = qEl.value.trim().toLowerCase();
+      const g = genreEl.value; const st = statusEl.value;
+      const list = store.books.filter(b=>
+        (!q || (b.title+" "+b.author+" "+(b.desc||"")).toLowerCase().includes(q)) &&
+        (!g || b.genre===g) &&
+        (!st || b.status===st)
+      );
+      booksEl.innerHTML = list.map(b=>bookCard(b)).join('') || `<div class="panel">No books yet. Admins can add books in the Admin tab.</div>`;
+    }
+
+    function bookCard(b){
+      const canBorrow = b.status!=='Borrowed';
+      return `<div class="card">
+        <div class="cover">${emojiFor(b.genre)}</div>
+        <div class="meta">
+          <h4 class="title">${b.title}</h4>
+          <p class="author">by ${b.author} • ${b.genre||'General'}</p>
+          <div class="badges">${badge(b.status||'Available', (b.status||'Available')==='Available'? 'var(--success)' : 'var(--warn)')}</div>
+          <p style="margin:8px 0 0;color:var(--muted);font-size:14px">${b.desc||''}</p>
+        </div>
+        <div class="actions">
+          ${canBorrow ? `<button class="tiny primary" onclick="borrow('${b.id}')">Borrow</button>`:
+                         `<button class="tiny" onclick="returnBook('${b.id}')">Return</button>`}
+        </div>
+      </div>`
+    }
+
+    function borrow(bookId){
+      const s = store.session; if(!s) return toast('Please login first');
+      const books = store.books; const b = books.find(x=>x.id===bookId); if(!b) return;
+      if(b.status==='Borrowed') return toast('Book is not available');
+      b.status='Borrowed'; store.books = books;
+      const now = Date.now();
+      const record = { id:id(), userId:s.id, bookId:b.id, borrowedAt:now, dueAt:addDays(now, 7), returnedAt:null };
+      const loans = store.loans; loans.push(record); store.loans = loans;
+      toast(`Borrowed: ${b.title}`); renderBooks(); renderLoans();
+    }
+
+    function returnBook(bookId){
+      const s = store.session; if(!s) return toast('Please login first');
+      const books = store.books; const b = books.find(x=>x.id===bookId); if(!b) return;
+      const loans = store.loans; const rec = loans.find(x=>x.bookId===bookId && !x.returnedAt);
+      if(!rec) return toast('No active loan found');
+      rec.returnedAt = Date.now(); store.loans = loans; b.status='Available'; store.books = books;
+      toast(`Returned: ${b.title}`); renderBooks(); renderLoans();
+    }
+
+    /* =============================
+       LOANS VIEW
+    ============================== */
+    function renderLoans(){
+      const s = store.session; const tbody = document.querySelector('#loanTable tbody');
+      if(!s){ tbody.innerHTML = '<tr><td colspan=5>Login to see your loans.</td></tr>'; return }
+      const loans = store.loans.filter(x=>x.userId===s.id);
+      if(!loans.length){ tbody.innerHTML = '<tr><td colspan=5>No loans yet.</td></tr>'; return }
+      tbody.innerHTML = loans.map(r=>{
+        const b = store.books.find(k=>k.id===r.bookId) || {title:'[Removed]'};
+        let status = 'On loan';
+        if(r.returnedAt) status = 'Returned';
+        else if(Date.now()>r.dueAt) status = 'Overdue';
+        return `<tr>
+          <td>${b.title}</td>
+          <td>${fmtDate(r.borrowedAt)}</td>
+          <td>${fmtDate(r.dueAt)}</td>
+          <td>${status}</td>
+          <td>${!r.returnedAt? `<button class="tiny" onclick="returnBook('${b.id}')">Return</button>`:''}</td>
+        </tr>`
+      }).join('');
+    }
+
+    /* =============================
+       ADMIN VIEW — BOOKS & USERS
+    ============================== */
+    const bookModal = document.getElementById('bookModal');
+    const addBookBtn = document.getElementById('addBookBtn');
+    addBookBtn.onclick = ()=> openBookModal();
+
+    let editId = null;
+    function openBookModal(book){
+      editId = book? book.id : null;
+      document.getElementById('modalTitle').textContent = editId? 'Edit Book' : 'Add Book';
+      document.getElementById('mTitle').value = book?.title || '';
+      document.getElementById('mAuthor').value = book?.author || '';
+      document.getElementById('mGenre').value = book?.genre || '';
+      document.getElementById('mDesc').value = book?.desc || '';
+      bookModal.showModal();
+    }
+    document.getElementById('bookForm').addEventListener('close', ()=>{ editId=null });
+    document.getElementById('saveBook').addEventListener('click', (e)=>{
+      e.preventDefault();
+      const title = document.getElementById('mTitle').value.trim();
+      const author = document.getElementById('mAuthor').value.trim();
+      const genre = document.getElementById('mGenre').value.trim();
+      const desc  = document.getElementById('mDesc').value.trim();
+      if(!title||!author) return toast('Title and Author required');
+      const books = store.books;
+      if(editId){ const b = books.find(x=>x.id===editId); if(!b) return; Object.assign(b, {title, author, genre, desc}); }
+      else{ books.push({id:id(), title, author, genre, desc, status:'Available'}); }
+      store.books = books; bookModal.close(); renderAdmin(); renderBooks(); toast('Saved');
+    });
+
+    function renderAdmin(){
+      const s = store.session; const list = document.getElementById('adminList');
+      if(!s || s.role!=='admin'){ list.innerHTML = '<div class="panel">Admins only.</div>'; return }
+      const books = store.books;
+      list.innerHTML = books.length? books.map(b=>`
+        <div class="card">
+          <div class="cover">${emojiFor(b.genre)}</div>
+          <div class="meta"><div class="title">${b.title}</div><div class="author">${b.author} • ${b.genre||'General'}</div></div>
+          <div class="actions">
+            <button class="tiny" onclick='openBookModal(${JSON.stringify(b)})'>Edit</button>
+            <button class="tiny" onclick='toggleStatus("${b.id}")'>${(b.status||'Available')==='Available'?'Mark Borrowed':'Mark Available'}</button>
+            <button class="tiny" style="border-color:var(--danger);color:var(--danger)" onclick='removeBook("${b.id}")'>Delete</button>
+          </div>
+        </div>`).join('') : '<div class="panel">No books yet. Click <b>Add Book</b> to create one.</div>';
+    }
+    function toggleStatus(idv){ const books = store.books; const b=books.find(x=>x.id===idv); if(!b) return; b.status=(b.status||'Available')==='Available'?'Borrowed':'Available'; store.books=books; renderAdmin(); renderBooks(); }
+    function removeBook(idv){ const books = store.books.filter(x=>x.id!==idv); store.books=books; renderAdmin(); renderBooks(); }
+
+    function renderUsers(){
+      const s = store.session; const tbody = document.querySelector('#userTable tbody');
+      if(!s || s.role!=='admin'){ tbody.innerHTML = '<tr><td colspan=6>Admins only.</td></tr>'; return }
+      const users = store.users;
+      if(!users.length){ tbody.innerHTML = '<tr><td colspan=6>No users yet.</td></tr>'; return }
+      tbody.innerHTML = users.map(u=>`
+        <tr>
+          <td>${u.name||'-'}</td>
+          <td>${u.username}</td>
+          <td>${u.email||'-'}</td>
+          <td>
+            <select class="select" onchange="setRole('${u.id}', this.value)">
+              <option value="user" ${u.role==='user'?'selected':''}>User</option>
+              <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+            </select>
+          </td>
+          <td>${fmtDate(u.joined||Date.now())}</td>
+          <td>${u.id!==s.id? `<button class="tiny" onclick="deleteUser('${u.id}')" style="border-color:var(--danger);color:var(--danger)">Delete</button>`:''}</td>
+        </tr>`).join('');
+    }
+    function setRole(uid, role){ const users=store.users; const u=users.find(x=>x.id===uid); if(!u) return; u.role=role; store.users=users; toast('Role updated'); updateUI(); renderUsers(); }
+    function deleteUser(uid){ const users=store.users.filter(x=>x.id!==uid); store.users=users; toast('User deleted'); renderUsers(); }
+
+    /* =============================
+       PROFILE VIEW
+    ============================== */
+    function renderProfile(){
+      const s = store.session; const el = document.getElementById('profileCard');
+      if(!s){ el.innerHTML = '<div class="panel">Login to view profile.</div>'; return }
+      const me = store.users.find(x=>x.id===s.id);
+      const myLoans = store.loans.filter(x=>x.userId===s.id && !x.returnedAt);
+      const overdue = myLoans.filter(x=> Date.now()>x.dueAt).length;
+      el.innerHTML = `
+        <div class="card" style="align-items:flex-start">
+          <div class="cover">👤</div>
+          <div class="meta">
+            <h3 class="title" style="margin:0">${me?.name||me?.username}</h3>
+            <p class="author" style="margin:4px 0">${me?.email||''}</p>
+            <p class="author" style="margin:4px 0">Role: ${me?.role} • Joined: ${fmtDate(me?.joined||Date.now())}</p>
+            <div class="badges">${badge('Active loans: '+myLoans.length,'var(--accent)')} ${badge('Overdue: '+overdue, overdue? 'var(--danger)':'var(--success)')}</div>
+          </div>
+          <div class="actions"><button class="tiny" onclick="changePass()">Change Password</button></div>
+        </div>`;
+    }
+    function changePass(){ const s=store.session; if(!s) return; const np=prompt('New password:'); if(!np) return; const users=store.users; const me=users.find(x=>x.id===s.id); me.password=np; store.users=users; toast('Password updated'); }
+
+    /* =============================
+       EMOJI COVERS
+    ============================== */
+    function emojiFor(genre){
+      const g=(genre||'').toLowerCase();
+      if(g.includes('fantasy')) return '🪄';
+      if(g.includes('sci')) return '🚀';
+      if(g.includes('program')) return '💻';
+      if(g.includes('thrill')) return '🕵️';
+      if(g.includes('class')) return '🏛️';
+      if(g.includes('self')) return '✨';
+      if(g.includes('rom')) return '💞';
+      return '📘';
+    }
+
+    /* =============================
+       FRIENDLY AI BOT — TEXT + VOICE
+    ============================== */
+    const botToggle = document.getElementById('botToggle');
+    const bot = document.getElementById('bot');
+    const messages = document.getElementById('messages');
+    const botInput = document.getElementById('botInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const ttsBtn = document.getElementById('ttsBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+
+    let speakEnabled = true;
+    let recognizing = false;
+    let recognition = null;
+
+    // Initialize Speech Recognition (if available)
+    if('webkitSpeechRecognition' in window){
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = false; // single phrase per press
+      recognition.interimResults = false;
+      recognition.lang = navigator.language || 'en-US';
+      recognition.onresult = (e)=>{
+        const transcript = e.results[0][0].transcript;
+        pushMe(transcript);
+        respond(transcript);
+      };
+      recognition.onend = ()=>{ recognizing=false; voiceBtn.classList.remove('toggle-on') };
+    } else {
+      voiceBtn.disabled = true; voiceBtn.title = 'Voice not supported in this browser';
+    }
+
+    botToggle.onclick = ()=>{ bot.style.display = bot.style.display==='flex' ? 'none' : 'flex'; if(bot.style.display==='flex'){ botInput.focus(); greet() } };
+    sendBtn.onclick = ()=>{ const t = botInput.value.trim(); if(!t) return; pushMe(t); respond(t); botInput.value=''; };
+    botInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); sendBtn.click() } });
+
+    ttsBtn.onclick = ()=>{ speakEnabled = !speakEnabled; ttsBtn.classList.toggle('toggle-on', speakEnabled) };
+    voiceBtn.onmousedown = startVoice; voiceBtn.ontouchstart = startVoice; // mobile hold
+    voiceBtn.onmouseup = stopVoice; voiceBtn.ontouchend = stopVoice;
+
+    function startVoice(){ if(!recognition || recognizing) return; recognizing=true; voiceBtn.classList.add('toggle-on'); recognition.start(); }
+    function stopVoice(){ if(recognition && recognizing){ recognition.stop(); } }
+
+    function greet(){ if(messages.childElementCount) return; pushBot("Hi! I'm your friendly library assistant. I can search books, recommend reads, help you borrow/return, and more. Ask me anything — you can type or hold the mic 🎤.") }
+
+    function pushMe(text){ const row=document.createElement('div'); row.className='msg from-me'; row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`; messages.appendChild(row); messages.scrollTop=messages.scrollHeight; }
+    function pushBot(text, options={}){
+      const row=document.createElement('div'); row.className='msg from-bot';
+      const bubble=document.createElement('div'); bubble.className='bubble'; row.appendChild(bubble); messages.appendChild(row); messages.scrollTop=messages.scrollHeight;
+      typeText(bubble, text, ()=>{ if(speakEnabled) speak(text) });
+    }
+
+    function typeText(el, text, cb){
+      let i=0; const speed=12; // ms per char
+      const timer=setInterval(()=>{ el.innerHTML = escapeHtml(text.slice(0, ++i)); messages.scrollTop=messages.scrollHeight; if(i>=text.length){ clearInterval(timer); if(cb) cb(); } }, speed);
+    }
+
+    function escapeHtml(s){ return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) }
+
+    // Text-to-Speech
+    function speak(text){
+      if(!('speechSynthesis' in window)) return;
+      const uttr = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,''));
+      uttr.lang = navigator.language || 'en-US';
+      window.speechSynthesis.cancel(); // stop any previous
+      window.speechSynthesis.speak(uttr);
+    }
+
+    const helpText = `
+      <b>What I can do</b>
+
+      • <i>search &lt;keywords&gt;</i> — find books by title/author/desc
+
+      • <i>recommend &lt;genre/mood&gt;</i> — suggest available books
+
+      • <i>borrow &lt;title&gt;</i> — quick-borrow (if available & logged in)
+
+      • <i>return &lt;title&gt;</i> — quick-return
+
+      • <i>loans</i> — list your current loans and due dates
+
+      • <i>hours</i> — library hours & policy
+
+      • <i>help</i> or <i>?</i> — show this help`;
+
+    function respond(raw){
+      const s = store.session; const me = s && store.users.find(x=>x.id===s.id);
+      const text = raw.trim();
+      const lower = text.toLowerCase();
+
+      // Friendly small talk
+      if(['hi','hello','hey','yo','sup'].some(w=>lower===w || lower.startsWith(w+' ')))
+        return pushBot(`Hi ${me? (me.name||me.username) : 'there'}! 👋 How can I help today?`);
+      if(lower.includes('thank')) return pushBot("You're welcome! If you need anything else, I'm here.");
+      if(lower.includes('bye')) return pushBot('Goodbye! Happy reading 📚');
+
+      // Help
+      if(lower==='?' || lower==='help' || lower.includes('what can you do')) return pushBot(helpText);
+
+      // Intent shortcuts
+      if(lower.startsWith('search ')) return botSearch(text.slice(7).trim());
+      if(lower.startsWith('recommend ')) return botRecommend(text.slice(10).trim());
+      if(lower==='loans' || lower==='my loans') return botLoans();
+      if(lower.startsWith('borrow ')) return botBorrow(text.slice(7).trim());
+      if(lower.startsWith('return ')) return botReturn(text.slice(7).trim());
+      if(lower.includes('hour') || lower.includes('open') || lower.includes('policy')) return pushBot("We're open Mon–Sat 8:00–18:00. Loans are 7 days. Please return items on time to avoid flags.");
+
+      // Admin hints
+      if(lower.includes('add book') || lower.includes('new book')){
+        if(!s) return pushBot('You need to sign in first.');
+        if(s.role!=='admin') return pushBot('Only admins can add books. Ask an admin to help.');
+        return pushBot('Sure! Click the <b>Add Book</b> button in Admin → Manage Books. I can wait while you fill it.');
+      }
+
+      // Fallback → smart search
+      return botSearch(text);
+    }
+
+    function botSearch(k){
+      if(!k){ pushBot('Please provide keywords to search.'); return }
+      const res = store.books.filter(b=> (b.title+" "+b.author+" "+(b.desc||"")+" "+(b.genre||"")).toLowerCase().includes(k.toLowerCase()));
+      if(!res.length){ pushBot(`No matches for <b>${escapeHtml(k)}</b>. You can add books from the Admin tab if you\'re an admin.`); return }
+      const html = res.slice(0,6).map(b=>`• <b>${b.title}</b> by ${b.author} — <i>${b.genre||'General'}</i> ${badge(b.status||'Available', (b.status||'Available')==='Available'? 'var(--success)':'var(--warn)')}`).join('<br>');
+      pushBot(`<b>Found ${res.length}</b> result(s):<br>${html}`);
+    }
+
+    function botRecommend(g){
+      if(!g){ pushBot('Tell me a genre or mood, e.g., <i>recommend fantasy</i> or <i>recommend something relaxing</i>.'); return }
+      // Basic mood mapping
+      const moodMap = { relaxing:['romance','poetry','self-help'], scary:['horror','thriller'], smart:['non-fiction','science','history','programming'] };
+      let targets = [g.toLowerCase()];
+      Object.entries(moodMap).forEach(([m,arr])=>{ if(g.toLowerCase().includes(m)) targets = arr });
+      const res = store.books.filter(b=> targets.some(t=> (b.genre||'').toLowerCase().includes(t)) && (b.status||'Available')==='Available');
+      if(!res.length) return pushBot(`No available picks for <b>${escapeHtml(g)}</b> right now.`);
+      const html = res.slice(0,5).map(b=>`• <b>${b.title}</b> by ${b.author}`).join('<br>');
+      pushBot(`Here are ${res.length} available <b>${escapeHtml(g)}</b> picks:<br>${html}`);
+    }
+
+    function botLoans(){
+      const s = store.session; if(!s) return pushBot('Please sign in to view your loans.');
+      const my = store.loans.filter(x=>x.userId===s.id && !x.returnedAt);
+      if(!my.length) return pushBot('You have no active loans.');
+      const html = my.map(r=>{ const b=store.books.find(k=>k.id===r.bookId)||{title:'[Removed]'}; return `• <b>${b.title}</b> due <b>${fmtDate(r.dueAt)}</b>` }).join('<br>');
+      pushBot(html);
+    }
+
+    function botBorrow(t){
+      const s = store.session; if(!s) return pushBot('Please sign in to borrow.');
+      const b = fuzzyFindTitle(t);
+      if(!b) return pushBot(`I couldn\'t find "${escapeHtml(t)}".`);
+      if((b.status||'Available')!=='Available') return pushBot(`<b>${b.title}</b> is currently not available.`);
+      borrow(b.id); pushBot(`Borrowed <b>${b.title}</b>. Enjoy! 📚`);
+    }
+
+    function botReturn(t){
+      const s = store.session; if(!s) return pushBot('Please sign in to return items.');
+      const b = fuzzyFindTitle(t);
+      if(!b) return pushBot(`I couldn\'t find "${escapeHtml(t)}".`);
+      const rec = store.loans.find(x=>x.bookId===b.id && !x.returnedAt);
+      if(!rec) return pushBot(`You don\'t have <b>${b.title}</b> on loan.`);
+      returnBook(b.id); pushBot(`Returned <b>${b.title}</b>. Thank you!`);
+    }
+
+    function fuzzyFindTitle(t){
+      const s = t.toLowerCase();
+      return store.books.find(b=> (b.title||'').toLowerCase()===s) ||
+             store.books.find(b=> (b.title||'').toLowerCase().includes(s));
+    }
+
+    /* =============================
+       INIT & LISTENERS
+    ============================== */
+    updateUI();
+    const qEl2 = document.getElementById('q');
+    const genreEl2 = document.getElementById('genre');
+    const statusEl2 = document.getElementById('status');
+    qEl2.addEventListener('input', renderBooks); genreEl2.addEventListener('change', renderBooks); statusEl2.addEventListener('change', renderBooks);
+
+    // Keyboard shortcut: / to focus search, Ctrl+K to open chat
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='/' && document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA'){ e.preventDefault(); qEl2.focus(); }
+      if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); botToggle.click(); }
+    });
+  </script>
+</body>
+</html>
